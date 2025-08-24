@@ -2,9 +2,31 @@
 //Решение уравнений типа ax^2 + bx + c = 0
 //----------------------------------------
 
+
 #include <stdio.h>
 #include <math.h>
 #include <TXLib.h>
+
+//----------------------------------------
+//const int Sum_of_tests - размер массива тестовых примеров
+//----------------------------------------
+
+const int Sum_of_tests = 6;
+
+
+//----------------------------------------
+//const int N - количество данных тестового примера
+//----------------------------------------
+
+const int N = 6;
+
+
+//----------------------------------------
+//const float Epsilon - константа эпсилон окрестности вычислений
+//----------------------------------------
+
+const float Epsilon = 0.0001;
+
 
 //----------------------------------------
 // struct Roots - структура корней уравнения
@@ -19,61 +41,104 @@ typedef struct {
     int num_roots;
 } Roots;
 
+
 //----------------------------------------
-//@param [in] a  коэффицент a
-//@param [in] b  коэффицент b
-//@param [in] c  коэффицент c
+// struct Coefficients - структура корней уравнения
+// a первый коэффицент уравнения a
+// b второй коэффицент уравнения b
+// c третий коэффицент уравнения c
+//----------------------------------------
+
+typedef struct {
+    double a;
+    double b;
+    double c;
+} Coefficients;
+
+
+//----------------------------------------
+//@param [in] Coefficients структура коэффицентов a,b,c
 //@param [out] вывод вида уравнения на экран пользователя
 //----------------------------------------
 
-
-void input_yravn(double *a, double *b, double *c) {
-    printf("Уравнение: %.2fx^2", *a);
-    if (*b >= 0) {
-        printf(" + %.2fx", *b);
+void print_equation(Coefficients coefficients) {
+    printf("Уравнение: %.4fx^2", coefficients.a);
+    if (coefficients.b >= 0) {
+        printf(" + %.4fx", coefficients.b);
     } else {
-        printf(" - %.2fx", -(*b));
+        printf(" - %.4fx", -(coefficients.b));
     }
-    if (*c >= 0) {
-        printf(" + %.2f = 0\n", *c);
+    if (coefficients.c >= 0) {
+        printf(" + %.4f = 0\n", coefficients.c);
     } else {
-        printf(" - %.2f = 0\n", -(*c));
+        printf(" - %.4f = 0\n", -(coefficients.c));
     }
 }
+
+
+//----------------------------------------
+//@param [out] Coefficients структура коэффицентов a,b,c
+//----------------------------------------
+
+ Coefficients input(){
+    Coefficients coefficients;
+    double a = NAN;
+    double b = NAN;
+    double c = NAN;
+
+    printf("==== РЕШЕНИЕ КВАДРАТНЫХ УРАВНЕНИЙ ====\n");
+    printf("Введите три коэффицента a,b,c (каждое число с новой строки):\n");
+
+    scanf("%lf", &a);
+    scanf("%lf", &b);
+    scanf("%lf", &c);
+
+    coefficients.a=a;
+    coefficients.b=b;
+    coefficients.c=c;
+
+    printf("\nВы ввели:\n");
+    printf("Первый коэфицент a: %.4f\n", coefficients.a);
+    printf("Второй коэфицент b: %.4f\n", coefficients.b);
+    printf("Третий коэфицент c: %.4f\n", coefficients.c);
+    print_equation(coefficients);
+
+    return coefficients;
+ }
+
 
 //----------------------------------------
 //@param [in] a  кожффицент a
 //@param [in] b  коэффицент b
 //@param [in] c  коэффицент c
-//@param [out] discrim вывод дискриминанта уравнения
+//@param [out] discriminant вывод дискриминанта уравнения
 //----------------------------------------
 
-double call_discrim(double a, double b, double c) {
+double calc_discriminant(double a, double b, double c) {
     return b * b - 4 * a * c;
 }
 
+
 //----------------------------------------
-//@param [in]  a  кожффицент a
-//@param [in]  b  коэффицент b
-//@param [in]  c  коэффицент c
-//@param [out] roots вывод значения второго корня
+//@param [in] Coefficients структура коэффицентов a,b,c
+//@param [out] Roots структура значений уравнения x1,x2 и количества решений num_roots
 //----------------------------------------
 
-Roots solve_quadr(double a, double b, double c) {
+Roots solve_quadratic_equation(Coefficients coefficients) {
     Roots roots;
 
-    double discrim = call_discrim(a, b, c);
+    double discriminant = calc_discriminant(coefficients.a, coefficients.b, coefficients.c);
 
-    if (!(a==0))
+    if (!((coefficients.a<=0+Epsilon) && (coefficients.a>=0-Epsilon)))
     {
 
-        if (discrim > 0) {
+        if (discriminant > 0+Epsilon) {
             roots.num_roots = 2;
-            roots.x1 = (-b + sqrt(discrim)) / (2 * a);
-            roots.x2 = (-b - sqrt(discrim)) / (2 * a);
-        } else if (discrim == 0) {
+            roots.x1 = (-coefficients.b + sqrt(discriminant)) / (2 * coefficients.a);
+            roots.x2 = (-coefficients.b - sqrt(discriminant)) / (2 * coefficients.a);
+        } else if ((discriminant <= 0+Epsilon) && (discriminant >= 0-Epsilon)) {
             roots.num_roots = 1;
-            roots.x1 = roots.x2 = -b / (2 * a);
+            roots.x1 = roots.x2 = -coefficients.b / (2 * coefficients.a);
         } else {
             roots.num_roots = 0;
             roots.x1 = roots.x2 = 0;
@@ -81,10 +146,10 @@ Roots solve_quadr(double a, double b, double c) {
 
     }
 
-    else if (a==0)
+    else if ((coefficients.a<=0+Epsilon) && (coefficients.a>=0-Epsilon))
     {
-        if (b == 0) {
-            if (c == 0) {
+        if ((coefficients.b<=0+Epsilon) && (coefficients.b>=0-Epsilon)) {
+            if ((coefficients.c<=0+Epsilon) && (coefficients.c>=0-Epsilon)) {
                 roots.num_roots = -1;
                 roots.x1 = roots.x2 = 0;
             }
@@ -95,7 +160,7 @@ Roots solve_quadr(double a, double b, double c) {
             }
         else {
             roots.num_roots = 1;
-            roots.x1 = -c / b;
+            roots.x1 = -coefficients.c / coefficients.b;
             roots.x2 = roots.x1;
         }
     }
@@ -103,13 +168,69 @@ Roots solve_quadr(double a, double b, double c) {
     return roots;
 }
 
+
+//----------------------------------------
+//@param [in] double a  коэффицент а
+//@param [in] double b  коэффицент b
+//@param [in] double c  коэффицент c
+//@param [in] double x1_specified  тестовый корень 1
+//@param [in] double x2_specified  тестовый корень 2
+//@param [in] int number_of_solutions  количество тестовых корней
+//@param [out] 1, если тестовые корни совпадают с настоящим, иначе 0
+//----------------------------------------
+
+int One_Test(double a, double b, double c, double x1_specified , double x2_specified, int number_of_solutions)
+{
+    Coefficients coefficients;
+    Roots roots;
+
+    coefficients.a=a;
+    coefficients.b=b;
+    coefficients.c=c;
+
+    roots = solve_quadratic_equation(coefficients);
+
+    if ((x1_specified+Epsilon >= roots.x1) && (x1_specified-Epsilon <= roots.x1) && (x2_specified+Epsilon >= roots.x2) && (x2_specified-Epsilon <= roots.x2) && (number_of_solutions == roots.num_roots)){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+
+//----------------------------------------
+//@param [out] int not_failed количество верно пройденных тестов
+//----------------------------------------
+
+int RunTest()
+{
+    float tests_array[Sum_of_tests][N] = {
+          {3,5,-2,0.3334,-2,2},
+          {-2,8,6,-0.6458,4.6458,2},
+          {4,-4,1,0.5,0.5,1},
+          {7,2,9,0,0,0},
+          {0,0,0,0,0,-1},
+          {2,-3,1,1,0.5,2}
+    };
+
+    int not_failed = 0;
+    for (int i = 0; i < 6; i++)
+    {
+        not_failed += One_Test(tests_array[i][0], tests_array[i][1], tests_array[i][2], tests_array[i][3], tests_array[i][4], tests_array[i][5]);
+    }
+
+    return not_failed;
+}
+
+
 //----------------------------------------
 //@param [in]  roots  корни уравнения
 //@param [in]  x1 первый корень уравнения
 //@param [in]  x2 второй корень уравнения
 //----------------------------------------
 
-void print_res(Roots roots) {
+void print_results(Roots roots) {
     printf("\n==== РЕЗУЛЬТАТЫ ====\n");
 
     switch (roots.num_roots) {
@@ -132,27 +253,23 @@ void print_res(Roots roots) {
 }
 
 
+
 int main() {
-    double a = NAN;
-    double b = NAN;
-    double c = NAN;
+    Coefficients coefficients;
     Roots roots;
 
-    printf("==== КАЛЬКУЛЯТОР КВАДРАТНЫХ УРАВНЕНИЙ ====\n");
-    printf("Введите три коэффицента a,b,c (каждое число с новой строки):\n");
+    int count_tests = NAN;
 
-    scanf("%lf", &a);
-    scanf("%lf", &b);
-    scanf("%lf", &c);
+    count_tests = RunTest();
 
-    printf("\nВы ввели:\n");
-    printf("Первый коэфицент a: %.2f\n", a);
-    printf("Второй коэфицент b: %.2f\n", b);
-    printf("Третий коэфицент c: %.2f\n", c);
-    input_yravn(&a, &b, &c);
+    printf("ПРОЙДЕНО ТЕСТОВ: %d", count_tests);
+    printf(" ИЗ %d\n", Sum_of_tests, "\n");
 
-    roots = solve_quadr(a, b, c);
-    print_res(roots);
+
+    coefficients = input();
+
+    roots = solve_quadratic_equation(coefficients);
+    print_results(roots);
 
     return 0;
 }
