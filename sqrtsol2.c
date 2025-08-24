@@ -1,10 +1,17 @@
 //----------------------------------------
 //Решение уравнений типа ax^2 + bx + c = 0
-
+//----------------------------------------
 
 #include <stdio.h>
 #include <math.h>
 #include <TXLib.h>
+
+//----------------------------------------
+// struct Roots - структура корней уравнения
+// x1 первый корень уравнения
+// x2 второй корень уравнения
+// num_roots количество корней
+//----------------------------------------
 
 typedef struct {
     double x1;
@@ -12,15 +19,15 @@ typedef struct {
     int num_roots;
 } Roots;
 
-
-//@param [in]  a  кожффицент a
-//@param [in]  b  коэффицент b
-//@param [in]  c  коэффицент c
+//----------------------------------------
+//@param [in] a  коэффицент a
+//@param [in] b  коэффицент b
+//@param [in] c  коэффицент c
 //@param [out] вывод вида уравнения на экран пользователя
+//----------------------------------------
 
 
 void input_yravn(double *a, double *b, double *c) {
-
     printf("Уравнение: %.2fx^2", *a);
     if (*b >= 0) {
         printf(" + %.2fx", *b);
@@ -34,68 +41,73 @@ void input_yravn(double *a, double *b, double *c) {
     }
 }
 
-
-//@param [in]  a  кожффицент a
-//@param [in]  b  коэффицент b
-//@param [in]  c  коэффицент c
+//----------------------------------------
+//@param [in] a  кожффицент a
+//@param [in] b  коэффицент b
+//@param [in] c  коэффицент c
 //@param [out] discrim вывод дискриминанта уравнения
+//----------------------------------------
 
-double cal_discrim(double a, double b, double c) {
+double call_discrim(double a, double b, double c) {
     return b * b - 4 * a * c;
 }
 
-//@param [in]  b  коэффицент b
-//@param [in]  c  коэффицент c
-//@param [out] roots инфрмация о количестве корней и их значения (первый корень)
-
-Roots solve_linear(double b, double c) {
-    Roots roots;
-
-    if (b == 0) {
-        if (c == 0) {
-            roots.num_roots = -1;
-            roots.x1 = roots.x2 = 0;
-        } else {
-            roots.num_roots = 0;
-            roots.x1 = roots.x2 = 0;
-        }
-    } else {
-        roots.num_roots = 1;
-        roots.x1 = -c / b;
-        roots.x2 = roots.x1;
-    }
-
-    return roots;
-}
-
+//----------------------------------------
 //@param [in]  a  кожффицент a
 //@param [in]  b  коэффицент b
 //@param [in]  c  коэффицент c
 //@param [out] roots вывод значения второго корня
+//----------------------------------------
 
 Roots solve_quadr(double a, double b, double c) {
     Roots roots;
 
-    double discrim = cal_discrim(a, b, c);
+    double discrim = call_discrim(a, b, c);
 
-    if (discrim > 0) {
-        roots.num_roots = 2;
-        roots.x1 = (-b + sqrt(discrim)) / (2 * a);
-        roots.x2 = (-b - sqrt(discrim)) / (2 * a);
-    } else if (discrim == 0) {
-        roots.num_roots = 1;
-        roots.x1 = roots.x2 = -b / (2 * a);
-    } else {
-        roots.num_roots = 0;
-        roots.x1 = roots.x2 = 0;
+    if (!(a==0))
+    {
+
+        if (discrim > 0) {
+            roots.num_roots = 2;
+            roots.x1 = (-b + sqrt(discrim)) / (2 * a);
+            roots.x2 = (-b - sqrt(discrim)) / (2 * a);
+        } else if (discrim == 0) {
+            roots.num_roots = 1;
+            roots.x1 = roots.x2 = -b / (2 * a);
+        } else {
+            roots.num_roots = 0;
+            roots.x1 = roots.x2 = 0;
+        }
+
+    }
+
+    else if (a==0)
+    {
+        if (b == 0) {
+            if (c == 0) {
+                roots.num_roots = -1;
+                roots.x1 = roots.x2 = 0;
+            }
+            else {
+                roots.num_roots = 0;
+                roots.x1 = roots.x2 = 0;
+            }
+            }
+        else {
+            roots.num_roots = 1;
+            roots.x1 = -c / b;
+            roots.x2 = roots.x1;
+        }
     }
 
     return roots;
 }
 
+//----------------------------------------
 //@param [in]  roots  корни уравнения
 //@param [in]  x1 первый корень уравнения
 //@param [in]  x2 второй корень уравнения
+//----------------------------------------
 
 void print_res(Roots roots) {
     printf("\n==== РЕЗУЛЬТАТЫ ====\n");
@@ -120,30 +132,26 @@ void print_res(Roots roots) {
 }
 
 
-
 int main() {
-    double a, b, c;
+    double a = NAN;
+    double b = NAN;
+    double c = NAN;
     Roots roots;
 
     printf("==== КАЛЬКУЛЯТОР КВАДРАТНЫХ УРАВНЕНИЙ ====\n");
-    printf("Введите три коэффицента (каждое с новой строки):\n");
+    printf("Введите три коэффицента a,b,c (каждое число с новой строки):\n");
 
     scanf("%lf", &a);
     scanf("%lf", &b);
     scanf("%lf", &c);
 
     printf("\nВы ввели:\n");
-    printf("Первое число: %.2f\n", a);
-    printf("Второе число: %.2f\n", b);
-    printf("Третье число: %.2f\n", c);
+    printf("Первый коэфицент a: %.2f\n", a);
+    printf("Второй коэфицент b: %.2f\n", b);
+    printf("Третий коэфицент c: %.2f\n", c);
     input_yravn(&a, &b, &c);
 
-    if (a == 0) {
-        roots = solve_linear(b, c);
-    } else {
-        roots = solve_quadr(a, b, c);
-    }
-
+    roots = solve_quadr(a, b, c);
     print_res(roots);
 
     return 0;
